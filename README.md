@@ -11,11 +11,11 @@ This addon adds something similar to the soil nutrient mechanic, with some chang
 
 - A farmland will passively gain about 3.14% of each nutrient every TFC month. That means that to go from to 0% to 100% it takes 32 ingame months.
 
-  |_ If for example a crop which uses the N nutrient is planted then that piece of soil won't regenerate the N nutrient.
+  - If for example a crop which uses the N nutrient is planted then that piece of soil won't regenerate the N nutrient.
 
-  |_ This enables the strategy of splitting the land in 3 (or more) pieces and rotating the crops based on their favorite nutrient each season, in temperate regions.
+  - This enables the strategy of splitting the land in 3 (or more) pieces and rotating the crops based on their favorite nutrient each season, in temperate regions.
      
-     |_ In TFC each crop takes ~4 months to mature
+     - In TFC each crop takes ~4 months to mature
 
 
 
@@ -27,6 +27,6 @@ This addon adds something similar to the soil nutrient mechanic, with some chang
 
 - Fertilizers are present for each nutrient which upon use increase their specific nutrient value by 50%.
 
-  |_ The item called "Fertilizer" in TFC is now the fertilizer for the K nutrient, saltpeter is the N nutrient and the mod adds a new item for the P nutrient.
+  - The item called "Fertilizer" in TFC is now the fertilizer for the K nutrient, saltpeter is the N nutrient and the mod adds a new item for the P nutrient.
 
-  |_ If you search "fertilizer" in JEI you can check all three of them.
+  - If you search "fertilizer" in JEI you can check all three of them.
