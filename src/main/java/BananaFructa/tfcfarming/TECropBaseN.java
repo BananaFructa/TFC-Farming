@@ -63,7 +63,7 @@ public class TECropBaseN extends TECropBase {
             virtualFactor = newFactor;
             factor = getAverageFactor(virtualFactor,super.getTicksSinceUpdate());
         }
-        
+
         return (long)(super.getTicksSinceUpdate() * factor);
     }
 
