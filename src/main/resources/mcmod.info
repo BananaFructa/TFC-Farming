@@ -1,0 +1,16 @@
+[
+{
+  "modid": "tfcfarming",
+  "name": "TFC Farming",
+  "description": "-",
+  "version": "1.0",
+  "mcversion": "${mcversion}",
+  "url": "",
+  "updateUrl": "",
+  "authorList": ["BananaFructa"],
+  "credits": "",
+  "logoFile": "",
+  "screenshots": [],
+  "dependencies": []
+}
+]

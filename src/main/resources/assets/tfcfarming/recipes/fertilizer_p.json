@@ -1,0 +1,25 @@
+{
+  "type": "forge:ore_shaped",
+  "pattern": [
+    " S ",
+    "SPS",
+    " S "
+  ],
+  "key": {
+    "S": [
+      {
+        "type": "forge:ore_dict",
+        "ore": "sand"
+      }
+    ],
+    "P": [
+      {
+        "item": "tfc:peat"
+      }
+    ]
+  },
+  "result": {
+    "item": "tfcfarming:fertilizer_p",
+    "count": 1
+  }
+}
