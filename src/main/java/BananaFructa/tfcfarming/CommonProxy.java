@@ -113,10 +113,9 @@ public class CommonProxy {
         // 255 units / 8 units / month = 32 months for a full replenish
         if (t.getTicksSinceUpdate() > month) {
             worldStorage.performCleanup();
-            // TODO:                                                            V config
-            worldStorage.globalIncreaseUpdate(w, NutrientClass.NITROGEN, 8);
-            worldStorage.globalIncreaseUpdate(w, NutrientClass.PHOSPHORUS, 8);
-            worldStorage.globalIncreaseUpdate(w, NutrientClass.POTASSIUM, 8);
+            worldStorage.globalIncreaseUpdate(w, NutrientClass.NITROGEN, Config.nPassive);
+            worldStorage.globalIncreaseUpdate(w, NutrientClass.PHOSPHORUS, Config.pPassive);
+            worldStorage.globalIncreaseUpdate(w, NutrientClass.POTASSIUM, Config.kPassive);
             TFCFarming.INSTANCE.worldStorage.resetCounter();
         }
 
@@ -154,6 +153,7 @@ public class CommonProxy {
             if (b instanceof BlockFarmlandTFC || (TFCFarming.tfcfloraeLoaded && b instanceof FarmlandTFCF)) {
                 // if it's rice and the top block is not water
                 if (
+                        TFCFarming.tfcfloraeLoaded &&
                         ItemSeedsTFC.get(Crop.RICE) == event.getEntityPlayer().getHeldItem(EnumHand.MAIN_HAND).getItem() &&
                         event.getWorld().getBlockState(event.getPos().up()).getMaterial() != Material.WATER
                 ) {

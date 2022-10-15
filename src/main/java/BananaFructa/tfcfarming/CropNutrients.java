@@ -44,8 +44,8 @@ public enum CropNutrients {
     TOMATO              (POTASSIUM,      Crop.TOMATO),
     RED_BELL_PEPPER     (POTASSIUM,      Crop.RED_BELL_PEPPER),
     YELLOW_BELL_PEPPER  (POTASSIUM,      Crop.YELLOW_BELL_PEPPER),
-    PUMPKIN             (POTASSIUM,      StemCrop.PUMPKIN),
-    MELON               (POTASSIUM,      StemCrop.MELON),
+    PUMPKIN             (POTASSIUM,      (TFCFarming.firmalifeLoaded ? StemCrop.PUMPKIN : null)),
+    MELON               (POTASSIUM,      (TFCFarming.firmalifeLoaded ? StemCrop.MELON : null)),
     BLACK_EYED_PEAS     (POTASSIUM,      (TFCFarming.tfcfloraeLoaded ? CropTFCF.BLACK_EYED_PEAS : null)),
     LIQUORICE           (POTASSIUM,      (TFCFarming.tfcfloraeLoaded ? CropTFCF.LIQUORICE_ROOT : null)),
     COFFEA              (POTASSIUM,      (TFCFarming.tfcfloraeLoaded ? CropTFCF.COFFEA : null)),
@@ -81,10 +81,15 @@ public enum CropNutrients {
 
 
     CropNutrients(NutrientClass favouriteNutrient, ICrop crop) {
-
-        stepCost = 255 / (crop.getMaxStage() + 1);
-        this.favouriteNutrient = favouriteNutrient;
-        this.crop = crop;
+        if (crop != null) {
+            stepCost = 255 / (crop.getMaxStage() + 1);
+            this.favouriteNutrient = favouriteNutrient;
+            this.crop = crop;
+        } else {
+            this.stepCost = 0;
+            this.favouriteNutrient = null;
+            this.crop = null;
+        }
 
     }
     public static CropNutrients getCropNValues(ICrop crop) {

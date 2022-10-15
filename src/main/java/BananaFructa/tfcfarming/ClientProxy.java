@@ -128,7 +128,7 @@ public class ClientProxy extends CommonProxy {
 
             Block b = mc.world.getBlockState(blockpos).getBlock();
 
-            if (!(b instanceof BlockCropTFC || b instanceof BlockCropDead || TFCFarming.tfcfloraeLoaded && (b instanceof FarmlandTFCF || b instanceof BlockFarmlandTFC)))
+            if (!(b instanceof BlockCropTFC || b instanceof BlockCropDead || (TFCFarming.tfcfloraeLoaded && b instanceof FarmlandTFCF) || b instanceof BlockFarmlandTFC))
                 return;
 
             boolean invalidResponse = lastResponse == null || lastResponse.x != blockpos.getX() || lastResponse.z != blockpos.getZ() || !lastResponse.accepted;
@@ -168,6 +168,13 @@ public class ClientProxy extends CommonProxy {
                 Utils.drawTooltipBox(x, y + 8 + 5, 96, 20, 0xF0100010, 0x505000FF, 0x5028007F);
                 mc.fontRenderer.drawStringWithShadow("\u00a7cLow nutrients!", x + 2, y + 8 + 3 + 3, 0xffffffff);
                 mc.fontRenderer.drawStringWithShadow("\u00a7c30% growth speed!", x + 2, y + 18 + 3 + 3, 0xffffffff);
+            }
+
+            if (b instanceof BlockCropDead) {
+                y -= 18;
+                Utils.drawTooltipBox(x, y + 8 + 5, 144, 20, 0xF0100010, 0x505000FF, 0x5028007F);
+                mc.fontRenderer.drawStringWithShadow("\u00a7cDead crop!", x + 2, y + 8 + 3 + 3, 0xffffffff);
+                mc.fontRenderer.drawStringWithShadow("\u00a7c" + (int)(Config.growthDead * 100) + "% nutrient recovery rate!", x + 2, y + 18 + 3 + 3, 0xffffffff);
             }
 
             Utils.drawTooltipBox(x, y - 40, 96, 40, 0xF0100010, 0x505000FF, 0x5028007F);

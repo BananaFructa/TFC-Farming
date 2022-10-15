@@ -6,6 +6,7 @@ import net.dries007.tfc.objects.te.TECropBase;
 import net.dries007.tfc.util.climate.ClimateTFC;
 import net.dries007.tfc.world.classic.chunkdata.ChunkDataTFC;
 import net.minecraft.nbt.NBTTagCompound;
+import org.lwjgl.Sys;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -62,12 +63,7 @@ public class TECropBaseN extends TECropBase {
             virtualFactor = newFactor;
             factor = getAverageFactor(virtualFactor,super.getTicksSinceUpdate());
         }
-
-        System.out.println("Pos: " + pos.getX() + " " + pos.getZ());
-        System.out.println("Nutrients: " + nutrientValues.NPK[0] + " " + nutrientValues.NPK[1] + " " + nutrientValues.NPK[2]);
-        System.out.println("Factor: " + factor);
-        System.out.println("Progress: " + (long)(super.getTicksSinceUpdate() * factor) + " / " + growthPhaseInterval);
-
+        
         return (long)(super.getTicksSinceUpdate() * factor);
     }
 
@@ -90,10 +86,6 @@ public class TECropBaseN extends TECropBase {
 
     private double getAverageFactor(double current,double currentTicks) {
         double rest = growthPhaseInterval;
-
-        System.out.println();
-        for (double i : factorList) System.out.print(i + " ");
-        System.out.println();
 
         for (int i = 0;i < factorList.size()/2;i++) {
             //         V speed                 V time

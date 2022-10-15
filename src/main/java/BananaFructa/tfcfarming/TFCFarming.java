@@ -14,6 +14,7 @@ import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.SidedProxy;
 import net.minecraftforge.fml.common.event.FMLInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLPostInitializationEvent;
+import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLServerStartingEvent;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.registry.GameRegistry;
@@ -21,7 +22,7 @@ import org.lwjgl.Sys;
 
 import java.util.Map;
 
-@Mod(modid = TFCFarming.modId,name = TFCFarming.name,version = TFCFarming.version,dependencies = "required-after:tfc;after:tfcflorae")
+@Mod(modid = TFCFarming.modId,name = TFCFarming.name,version = TFCFarming.version,dependencies = "required-after:tfc;after:tfcflorae;after:firmalife")
 public class TFCFarming {
 
     public static final String modId = "tfcfarming";
@@ -33,13 +34,20 @@ public class TFCFarming {
     public FarmingWorldStorage worldStorage;
 
     public static boolean tfcfloraeLoaded = false;
+    public static boolean firmalifeLoaded = false;
 
     @SidedProxy(modId = TFCFarming.modId,clientSide = "BananaFructa.tfcfarming.ClientProxy",serverSide = "BananaFructa.tfcfarming.CommonProxy")
     public static CommonProxy proxy;
 
     public TFCFarming() {
         tfcfloraeLoaded = Loader.isModLoaded("tfcflorae");
+        firmalifeLoaded = Loader.isModLoaded("firmalife");
         INSTANCE = this;
+    }
+
+    @Mod.EventHandler
+    public void preInit(FMLPreInitializationEvent event) {
+        Config.load(event.getModConfigurationDirectory());
     }
 
     @Mod.EventHandler
@@ -49,11 +57,6 @@ public class TFCFarming {
         GameRegistry.registerTileEntity(TECropBaseN.class,new ResourceLocation(modId,TECropBaseN.class.getSimpleName()));
         proxy.init();
     }
-
-    //@Mod.EventHandler
-    //public void postInit(FMLPostInitializationEvent event) {
-    //    tfcfloraeLoaded = Loader.isModLoaded("tfcflorae");
-    //}
 
     @Mod.EventHandler
     public void serverStaring(FMLServerStartingEvent event) {

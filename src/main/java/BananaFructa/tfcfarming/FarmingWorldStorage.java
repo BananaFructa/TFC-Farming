@@ -132,10 +132,8 @@ public class FarmingWorldStorage extends WorldSavedData {
                         break; // obstructing block in the way
                     }
                 }
-                System.out.println(found);
                 if (!found) continue;
-                //TODO:                                                      V congif
-                fertilizerBlock(l, nutrientClass, (int)(amount * (deadCrop ? 0.8 : 1))); // the block is equivalent to default, remove
+                fertilizerBlock(l, nutrientClass, (int)(amount * (deadCrop ? Config.growthDead : 1))); // the block is equivalent to default, remove
 
             }
         }
