@@ -35,6 +35,10 @@ public class NutrientValues {
         return true;
     }
 
+    public int getNutrient(NutrientClass nutrientClass) {
+        return NPK[nutrientClass.ordinal()];
+    }
+
     public int[] getNPKSet() {
         return NPK;
     }

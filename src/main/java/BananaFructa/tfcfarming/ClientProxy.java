@@ -1,25 +1,22 @@
 package BananaFructa.tfcfarming;
 
+import BananaFructa.tfcfarming.firmalife.TEPlanterN;
 import BananaFructa.tfcfarming.network.CPacketRequestNutrientData;
 import BananaFructa.tfcfarming.network.PacketHandler;
 import BananaFructa.tfcfarming.network.SPacketNutrientDataResponse;
-import net.dries007.tfc.api.capability.player.CapabilityPlayerData;
-import net.dries007.tfc.api.capability.player.IPlayerData;
+import com.eerussianguy.firmalife.blocks.BlockHangingPlanter;
+import com.eerussianguy.firmalife.blocks.BlockLargePlanter;
+import com.eerussianguy.firmalife.blocks.BlockQuadPlanter;
 import net.dries007.tfc.api.types.ICrop;
-import net.dries007.tfc.objects.ToolMaterialsTFC;
 import net.dries007.tfc.objects.blocks.agriculture.BlockCropDead;
 import net.dries007.tfc.objects.blocks.agriculture.BlockCropTFC;
 import net.dries007.tfc.objects.blocks.stone.BlockFarmlandTFC;
 import net.dries007.tfc.objects.items.ItemSeedsTFC;
-import net.dries007.tfc.objects.items.ItemsTFC;
 import net.dries007.tfc.objects.items.metal.ItemMetalHoe;
 import net.dries007.tfc.objects.items.rock.ItemRockHoe;
-import net.dries007.tfc.util.skills.Skill;
-import net.dries007.tfc.util.skills.SkillTier;
-import net.dries007.tfc.util.skills.SkillType;
+import net.dries007.tfc.util.Helpers;
 import net.minecraft.block.Block;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiIngame;
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.gui.ScaledResolution;
 import net.minecraft.client.renderer.GlStateManager;
@@ -29,10 +26,8 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.RayTraceResult;
 import net.minecraftforge.client.event.RenderGameOverlayEvent;
 import net.minecraftforge.event.entity.player.ItemTooltipEvent;
-import net.minecraftforge.fml.client.config.GuiUtils;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.gameevent.TickEvent;
-import net.minecraftforge.fml.common.network.FMLNetworkEvent;
 import tfcflorae.objects.blocks.blocktype.farmland.FarmlandTFCF;
 import tfcflorae.objects.items.tools.ItemHoeTFCF;
 
@@ -58,7 +53,7 @@ public class ClientProxy extends CommonProxy {
     public void onToolTip(ItemTooltipEvent event) {
 
         if (TFCFarmingContent.isFertilizer(event.getItemStack().getItem())) {
-            String line = "\u00A79Fertilizer value: " + TFCFarmingContent.getFertilizerValues(event.getItemStack().getItem()).name;
+            String line = "\u00A79Fertilizer value: " + TFCFarmingContent.getFertilizerClass(event.getItemStack().getItem()).name;
             event.getToolTip().add(line);
         }
 
@@ -125,18 +120,31 @@ public class ClientProxy extends CommonProxy {
         ) {
 
             BlockPos blockpos = mc.objectMouseOver.getBlockPos();
-
             Block b = mc.world.getBlockState(blockpos).getBlock();
 
-            if (!(b instanceof BlockCropTFC || b instanceof BlockCropDead || (TFCFarming.tfcfloraeLoaded && b instanceof FarmlandTFCF) || b instanceof BlockFarmlandTFC))
-                return;
+            boolean isTFCCrop = b instanceof BlockCropTFC;
+            boolean isTFCDeadCrop = b instanceof BlockCropDead;
+            boolean isFarmlandTFCF = TFCFarming.tfcfloraeLoaded && b instanceof FarmlandTFCF;
+            boolean isFarmlandTFC = b instanceof BlockFarmlandTFC;
+            boolean isPlanter = TFCFarming.firmalifeLoaded && (b instanceof BlockLargePlanter || (Config.hangingPlanters && b instanceof BlockHangingPlanter));
 
-            boolean invalidResponse = lastResponse == null || lastResponse.x != blockpos.getX() || lastResponse.z != blockpos.getZ() || !lastResponse.accepted;
+            if (!(isFarmlandTFC || isFarmlandTFCF || isPlanter || isTFCCrop || isTFCDeadCrop)) return;
+
+            boolean invalidResponse = lastResponse == null ||
+                                      lastResponse.x != blockpos.getX() ||
+                                      lastResponse.z != blockpos.getZ() ||
+                                      !lastResponse.accepted ||
+                                      (isPlanter && lastResponse.y != blockpos.getY());
+
             if (invalidResponse || ticksSinceLastResponse > 20) {
                 Minecraft.getMinecraft().addScheduledTask(new Runnable() {
                     @Override
                     public void run() {
-                        PacketHandler.INSTANCE.sendToServer(new CPacketRequestNutrientData(blockpos.getX(), blockpos.getZ()));
+                        if (!isPlanter) {
+                            PacketHandler.INSTANCE.sendToServer(new CPacketRequestNutrientData(blockpos.getX(), blockpos.getZ()));
+                        } else {
+                            PacketHandler.INSTANCE.sendToServer(new CPacketRequestNutrientData(blockpos.getX(), blockpos.getY(), blockpos.getZ()));
+                        }
                     }
                 });
                 if (!wasRendering || lastResponse == null) return; // if were already rendering and the response is not null keep rendering
@@ -153,28 +161,33 @@ public class ClientProxy extends CommonProxy {
 
             boolean enoughNutrients = true;
 
-            if (b instanceof BlockCropTFC) {
+            if (isTFCCrop) {
                 BlockCropTFC plant = (BlockCropTFC) b;
                 ICrop crop = plant.getCrop();
                 CropNutrients nValues = CropNutrients.getCropNValues(crop);
-                enoughNutrients = nutrientValues.getNPKSet()[nValues.favouriteNutrient.ordinal()] >= nValues.stepCost;
+                enoughNutrients = nutrientValues.getNutrient(nValues.favouriteNutrient) >= nValues.stepCost;
             }
 
             int x = sr.getScaledWidth() / 2 + 20;
             int y = sr.getScaledHeight() / 2 + 20;
 
+            // TODO: planter warnings
             if (!enoughNutrients) {
-                y -= 18;
-                Utils.drawTooltipBox(x, y + 8 + 5, 96, 20, 0xF0100010, 0x505000FF, 0x5028007F);
-                mc.fontRenderer.drawStringWithShadow("\u00a7cLow nutrients!", x + 2, y + 8 + 3 + 3, 0xffffffff);
-                mc.fontRenderer.drawStringWithShadow("\u00a7c30% growth speed!", x + 2, y + 18 + 3 + 3, 0xffffffff);
+                y = drawTextBox(mc,x,y,"\u00a7cLow nutrients!","\u00a7c30% growth speed!");
             }
 
-            if (b instanceof BlockCropDead) {
-                y -= 18;
-                Utils.drawTooltipBox(x, y + 8 + 5, 144, 20, 0xF0100010, 0x505000FF, 0x5028007F);
-                mc.fontRenderer.drawStringWithShadow("\u00a7cDead crop!", x + 2, y + 8 + 3 + 3, 0xffffffff);
-                mc.fontRenderer.drawStringWithShadow("\u00a7c" + (int)(Config.growthDead * 100) + "% nutrient recovery rate!", x + 2, y + 18 + 3 + 3, 0xffffffff);
+            if (isTFCDeadCrop) {
+                y = drawTextBox(mc,x,y,"\u00a7cDead crop!","\u00a7c" + (int)(Config.growthDead * 100) + "% nutrient recovery rate!");
+            }
+
+            if (isPlanter) {
+                if (lastResponse.lowInPlanter) {
+                    if (b instanceof BlockQuadPlanter) {
+                        y = drawTextBox(mc, x, y, "\u00a7cOne or more plants have low nutrients!");
+                    } else {
+                        y = drawTextBox(mc, x, y, "\u00a7cLow nutrients!");
+                    }
+                }
             }
 
             Utils.drawTooltipBox(x, y - 40, 96, 40, 0xF0100010, 0x505000FF, 0x5028007F);
@@ -195,5 +208,18 @@ public class ClientProxy extends CommonProxy {
         } else {
             wasRendering = false;
         }
+    }
+    private int drawTextBox(Minecraft mc,int x,int y,String... text) {
+        y -= -2 + 10 * text.length;
+        int maxL = 0;
+        for (String s : text) {
+            int l = mc.fontRenderer.getStringWidth(s);
+            if (l > maxL) maxL = l;
+        }
+        Utils.drawTooltipBox(x, y + 13, maxL + 2, 10 * text.length, 0xF0100010, 0x505000FF, 0x5028007F);
+        for (int i = 0;i < text.length;i++) {
+            mc.fontRenderer.drawStringWithShadow(text[i], x + 2, y + 14 + 10 * i, 0xffffffff);
+        }
+        return y;
     }
 }

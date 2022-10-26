@@ -1,5 +1,7 @@
 package BananaFructa.tfcfarming;
 
+import BananaFructa.tfcfarming.firmalife.TEHangingPlanterN;
+import BananaFructa.tfcfarming.firmalife.TEPlanterN;
 import BananaFructa.tfcfarming.network.PacketHandler;
 import net.dries007.tfc.api.types.ICrop;
 import net.dries007.tfc.objects.blocks.agriculture.BlockCropTFC;
@@ -27,7 +29,7 @@ public class TFCFarming {
 
     public static final String modId = "tfcfarming";
     public static final String name = "TFC Farming";
-    public static final String version = "1.0";
+    public static final String version = "1.1";
 
     public static TFCFarming INSTANCE;
 
@@ -55,6 +57,8 @@ public class TFCFarming {
         MinecraftForge.EVENT_BUS.register(proxy);
         PacketHandler.registerPackets();
         GameRegistry.registerTileEntity(TECropBaseN.class,new ResourceLocation(modId,TECropBaseN.class.getSimpleName()));
+        GameRegistry.registerTileEntity(TEPlanterN.class,new ResourceLocation(modId,TEPlanterN.class.getSimpleName()));
+        GameRegistry.registerTileEntity(TEHangingPlanterN.class,new ResourceLocation(modId,TEHangingPlanterN.class.getSimpleName()));
         proxy.init();
     }
 

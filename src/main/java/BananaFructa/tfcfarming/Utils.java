@@ -25,6 +25,7 @@ import net.minecraftforge.event.ForgeEventFactory;
 import net.minecraftforge.fml.client.config.GuiUtils;
 
 import java.lang.reflect.Field;
+import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 
 public class Utils {
@@ -68,6 +69,17 @@ public class Utils {
 
         } catch (Exception err) {
             err.printStackTrace();
+        }
+    }
+
+    public static Method getDeclaredMethod(Class<?> targetClass, String name, Class<?>... parameters) {
+        try {
+            Method m = targetClass.getDeclaredMethod(name,parameters);
+            m.setAccessible(true);
+            return m;
+        } catch (Exception err) {
+            err.printStackTrace();
+            return null;
         }
     }
 

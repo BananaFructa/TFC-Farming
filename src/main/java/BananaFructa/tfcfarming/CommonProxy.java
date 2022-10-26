@@ -1,8 +1,14 @@
 package BananaFructa.tfcfarming;
 
-import net.dries007.tfc.objects.blocks.agriculture.BlockCropTFC;
+import BananaFructa.tfcfarming.firmalife.TEHangingPlanterN;
+import BananaFructa.tfcfarming.firmalife.TEPlanterN;
+import com.eerussianguy.firmalife.blocks.BlockBonsai;
+import com.eerussianguy.firmalife.blocks.BlockHangingPlanter;
+import com.eerussianguy.firmalife.blocks.BlockLargePlanter;
+import com.eerussianguy.firmalife.te.TEHangingPlanter;
+import com.eerussianguy.firmalife.te.TEPlanter;
+import net.dries007.tfc.api.types.ICrop;
 import net.dries007.tfc.objects.blocks.stone.BlockFarmlandTFC;
-import net.dries007.tfc.objects.fluids.FluidsTFC;
 import net.dries007.tfc.objects.items.ItemSeedsTFC;
 import net.dries007.tfc.objects.te.TECropBase;
 import net.dries007.tfc.objects.te.TETickCounter;
@@ -10,15 +16,13 @@ import net.dries007.tfc.util.Helpers;
 import net.dries007.tfc.util.agriculture.Crop;
 import net.dries007.tfc.util.calendar.CalendarTFC;
 import net.minecraft.block.Block;
-import net.minecraft.block.BlockLiquid;
 import net.minecraft.block.material.Material;
-import net.minecraft.client.Minecraft;
-import net.minecraft.util.EnumFacing;
+import net.minecraft.item.Item;
+import net.minecraft.item.ItemStack;
 import net.minecraft.util.EnumHand;
 import net.minecraft.util.Tuple;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.RayTraceResult;
-import net.minecraft.util.math.Vec3d;
 import net.minecraft.util.text.TextComponentString;
 import net.minecraft.world.World;
 import net.minecraftforge.event.entity.player.PlayerInteractEvent;
@@ -29,13 +33,10 @@ import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.gameevent.PlayerEvent;
 import net.minecraftforge.fml.common.gameevent.TickEvent;
 import tfcflorae.objects.blocks.blocktype.farmland.FarmlandTFCF;
-import tfcflorae.objects.fluids.FluidsTFCF;
-import tfcflorae.util.agriculture.CropTFCF;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.UUID;
+import java.util.function.Supplier;
 
 public class CommonProxy {
 
@@ -79,6 +80,40 @@ public class CommonProxy {
                 TECropBaseN teCropBaseN = new TECropBaseN(te);
                 teCropBaseN.resetCounter();
                 event.getWorld().setTileEntity(event.getPos(), teCropBaseN);
+                return;
+            }
+            if (TFCFarming.firmalifeLoaded) {
+                TEPlanter pte = (TEPlanter) Helpers.getTE(event.getWorld(), event.getPos(), TEPlanter.class);
+                if (pte != null) {
+                    TEPlanterN tePlanterN = new TEPlanterN();
+                    tePlanterN.resetCounter();
+                    event.getWorld().setTileEntity(event.getPos(), tePlanterN);
+                    return;
+                }
+
+                Block b = event.getWorld().getBlockState(event.getPos()).getBlock();
+                if (Config.hangingPlanters && b instanceof BlockHangingPlanter) {
+
+                    BlockHangingPlanter hangingPlanter = (BlockHangingPlanter)b;
+                    Supplier<? extends Item> supplier = Utils.readDeclaredField(BlockBonsai.class,hangingPlanter,"seed");
+                    Item i = supplier.get();
+
+                    if (i instanceof ItemSeedsTFC) {
+                        ItemSeedsTFC seeds = (ItemSeedsTFC)i;
+                        TEHangingPlanter hpte = Helpers.getTE(event.getWorld(), event.getPos(), TEHangingPlanter.class);
+                        if (hpte != null) {
+                            ICrop crop = Utils.readDeclaredField(ItemSeedsTFC.class,seeds,"crop");
+                            if (crop != null) {
+                                TEHangingPlanter teHangingPlanter = new TEHangingPlanterN(crop);
+                                teHangingPlanter.resetCounter();
+                                event.getWorld().setTileEntity(event.getPos(),teHangingPlanter);
+                                System.out.println("AAAAAAAAAAAAAAAAAAA");
+                            }
+                        }
+                    }
+
+                }
+
             }
         }
     }
@@ -127,46 +162,34 @@ public class CommonProxy {
         return up.getY() == 256;
     }
 
-    /** Fixed TFCF rice placement */
-    @SubscribeEvent
-    public void onItemRightClick(PlayerInteractEvent.RightClickItem event) {
-        if (TFCFarming.tfcfloraeLoaded && (event.getItemStack().getItem() instanceof ItemSeedsTFC)) {
-            if (ItemSeedsTFC.get(Crop.RICE) == event.getItemStack().getItem()) {
-                event.setCanceled(true);
-                RayTraceResult result = Utils.rayTrace(event.getWorld(),event.getEntityPlayer(),false);
-                if (result != null) {
-                    BlockPos pos = result.getBlockPos();
-                    Block down = event.getWorld().getBlockState(pos).getBlock();
-                    if ((down instanceof BlockFarmlandTFC || down instanceof FarmlandTFCF) && event.getWorld().getBlockState(pos.up()).getBlock().getMaterial(null) == Material.WATER) {
-                        Utils.ricePlaceFixed(Crop.RICE,event.getItemStack().getItem(),event.getWorld(),event.getEntityPlayer(),event.getHand());
-                    }
-                }
-            }
-        }
-    }
-
     /** puts blocks put on TFCF farmland in await list, cancels rice put on TFCF farmland, fertilizer logic */
     @SubscribeEvent
     public void onBlockClick(PlayerInteractEvent.RightClickBlock event) {
         Block b = event.getWorld().getBlockState(event.getPos()).getBlock();
         if (!event.getWorld().isRemote) {
-            if (b instanceof BlockFarmlandTFC || (TFCFarming.tfcfloraeLoaded && b instanceof FarmlandTFCF)) {
-                // if it's rice and the top block is not water
-                if (
-                        TFCFarming.tfcfloraeLoaded &&
-                        ItemSeedsTFC.get(Crop.RICE) == event.getEntityPlayer().getHeldItem(EnumHand.MAIN_HAND).getItem() &&
-                        event.getWorld().getBlockState(event.getPos().up()).getMaterial() != Material.WATER
-                ) {
-                    event.setCanceled(true);
-                    return;
-                }
+            boolean farmlandTFC = b instanceof BlockFarmlandTFC;
+            boolean farmlandTFCF = TFCFarming.tfcfloraeLoaded && b instanceof FarmlandTFCF;
+            boolean planter = TFCFarming.firmalifeLoaded && b instanceof BlockLargePlanter;
+            boolean hangingPlanter = Config.hangingPlanters && TFCFarming.firmalifeLoaded && b instanceof BlockHangingPlanter;
+            if (farmlandTFC || farmlandTFCF || planter || hangingPlanter) {
 
                 // fertilizer logic
-                if (canSeeSky(event.getPos(), event.getWorld())) {
+                if (hangingPlanter || planter || canSeeSky(event.getPos(), event.getWorld())) {
                     if (TFCFarmingContent.isFertilizer(event.getItemStack().getItem())) {
-                        NutrientClass nutrientClass = TFCFarmingContent.getFertilizerValues(event.getItemStack().getItem());
-                        if (TFCFarming.INSTANCE.worldStorage.fertilizerBlock(event.getPos().getX(), event.getPos().getZ(), nutrientClass,128)) {
+                        NutrientClass nutrientClass = TFCFarmingContent.getFertilizerClass(event.getItemStack().getItem());
+                        int value = TFCFarmingContent.getFertilizerValue(event.getItemStack().getItem());
+                        if (!planter && TFCFarming.INSTANCE.worldStorage.fertilizerBlock(event.getPos().getX(), event.getPos().getZ(), nutrientClass,value)) {
                             event.getItemStack().setCount(event.getItemStack().getCount() - 1);
+                        } else if (planter) {
+                            TEPlanterN tePlanterN = Helpers.getTE(event.getWorld(),event.getPos(),TEPlanterN.class);
+                            if (tePlanterN != null && tePlanterN.fertilize(nutrientClass,value)) {
+                                event.getItemStack().setCount(event.getItemStack().getCount() - 1);
+                            }
+                        } else if (hangingPlanter) {
+                            TEHangingPlanterN teHangingPlanterN = Helpers.getTE(event.getWorld(),event.getPos(),TEHangingPlanterN.class);
+                            if (teHangingPlanterN != null && teHangingPlanterN.fertilize(nutrientClass,value)) {
+                                event.getItemStack().setCount(event.getItemStack().getCount() - 1);
+                            }
                         }
                     }
                 }
