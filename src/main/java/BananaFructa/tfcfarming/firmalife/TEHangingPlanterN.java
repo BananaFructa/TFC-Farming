@@ -6,6 +6,7 @@ import BananaFructa.tfcfarming.NutrientClass;
 import BananaFructa.tfcfarming.NutrientValues;
 import com.eerussianguy.firmalife.te.TEHangingPlanter;
 import net.dries007.tfc.api.types.ICrop;
+import net.dries007.tfc.util.climate.ClimateTFC;
 import net.minecraft.nbt.NBTTagCompound;
 
 public class TEHangingPlanterN extends TEHangingPlanter {
@@ -13,7 +14,7 @@ public class TEHangingPlanterN extends TEHangingPlanter {
     NutrientValues nutrientValues = new NutrientValues(0,0,0);
     NutrientClass nutrientClass;
     int cost;
-
+    float maxTemp;
     public TEHangingPlanterN() {
 
     }
@@ -22,6 +23,7 @@ public class TEHangingPlanterN extends TEHangingPlanter {
         CropNutrients cropNutrients = CropNutrients.getCropNValues(crop);
         nutrientClass = cropNutrients.favouriteNutrient;
         cost = (int)(cropNutrients.stepCost * Config.nutrientConsumptionHangingPlanter);
+        maxTemp = cropNutrients.maximumTemperature;
     }
 
     @Override
@@ -40,7 +42,11 @@ public class TEHangingPlanterN extends TEHangingPlanter {
 
     @Override
     public boolean isClimateValid(int tierMinimum) {
-        return super.isClimateValid(tierMinimum) && nutrientValues.getNutrient(nutrientClass) >= cost;
+        return super.isClimateValid(tierMinimum) && nutrientValues.getNutrient(nutrientClass) >= cost && isTempBelowMax();
+    }
+
+    public boolean isTempBelowMax() {
+        return !Config.enforceTemperature || maxTemp > ClimateTFC.getActualTemp(world,pos,0);
     }
 
     public boolean isLow() {
@@ -53,6 +59,7 @@ public class TEHangingPlanterN extends TEHangingPlanter {
         nutrientValues = new NutrientValues(NPK);
         cost = compound.getInteger("cost");
         nutrientClass = NutrientClass.values()[compound.getInteger("nutrientClass")];
+        maxTemp = compound.getFloat("maxTemp");
         super.readFromNBT(compound);
     }
 
@@ -61,6 +68,7 @@ public class TEHangingPlanterN extends TEHangingPlanter {
         compound.setIntArray("nutrients", nutrientValues.getNPKSet());
         compound.setInteger("cost",cost);
         compound.setInteger("nutrientClass",nutrientClass.ordinal());
+        compound.setFloat("maxTemp",maxTemp);
         return super.writeToNBT(compound);
     }
 }

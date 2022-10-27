@@ -3,7 +3,7 @@
   "modid": "tfcfarming",
   "name": "TFC Farming",
   "description": "TFC addon which implements soil nutrition mechanics.",
-  "version": "1.1",
+  "version": "1.1.1",
   "mcversion": "${mcversion}",
   "url": "",
   "updateUrl": "",

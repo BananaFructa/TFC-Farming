@@ -75,6 +75,7 @@ public enum CropNutrients {
     public final int stepCost;
     public final ICrop crop;
     public final NutrientClass favouriteNutrient;
+    public float maximumTemperature;
 
     // reverse map
     public static HashMap<ICrop, CropNutrients> MAP = new HashMap<ICrop, CropNutrients>();
@@ -85,6 +86,15 @@ public enum CropNutrients {
             stepCost = 255 / (crop.getMaxStage() + 1);
             this.favouriteNutrient = favouriteNutrient;
             this.crop = crop;
+
+            if (crop instanceof Crop) {
+                maximumTemperature = Utils.readDeclaredField(Crop.class,crop,"tempMaxGrow");
+            } else if (crop instanceof StemCrop) {
+                maximumTemperature = Utils.readDeclaredField(StemCrop.class,crop,"tempMaxGrow");
+            } else if (crop instanceof CropTFCF) {
+                maximumTemperature = Utils.readDeclaredField(CropTFCF.class,crop,"tempMaxGrow");
+            }
+
         } else {
             this.stepCost = 0;
             this.favouriteNutrient = null;

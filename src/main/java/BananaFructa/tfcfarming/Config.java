@@ -21,6 +21,7 @@ public class Config {
     public static String[] fertilizerNames;
     public static NutrientClass[] fertilizerClasses;
     public static Integer[] fertilizerValues;
+    public static boolean enforceTemperature;
 
     public static void load(File configDirectory) {
         config = new Configuration(new File(configDirectory,"tfcfarming.cfg"));
@@ -32,6 +33,7 @@ public class Config {
         hangingPlanters = config.getBoolean("hanging_planter","general",false,"True if the hanging planters should also have nutrient values");
         nutrientConsumptionInGreenhouse = config.getFloat("nutrient_in_greenhouse","general",1,0,10,"The rate at which crops consume nutrients while in Firmalife's greenhouse");
         nutrientConsumptionHangingPlanter = config.getFloat("nutrient_int_hanging","general",1,0,10,"The rate at which hanging planters consume nutrients");
+        enforceTemperature = config.getBoolean("enforce_temperature","general",false,"Plants in the greenhouse cannot grow in too of a hot climate");
         String[] fertilizerData = config.getStringList("fertilizers","general",new String[]{"tfc:powder/saltpeter~N~128","tfcfarming:fertilizer_p~P~128","tfc:powder/fertilizer~K~128"},"Fertilizer list: <item name>~<N/P/K>~<fertilizer value between 0~255>");
         List<String> names = new ArrayList<>();
         List<NutrientClass> classes = new ArrayList<>();

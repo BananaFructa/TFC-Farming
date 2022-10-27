@@ -6,6 +6,8 @@ import net.dries007.tfc.ConfigTFC;
 import net.dries007.tfc.Constants;
 import net.dries007.tfc.api.types.ICrop;
 import net.dries007.tfc.objects.items.ItemSeedsTFC;
+import net.dries007.tfc.util.agriculture.Crop;
+import net.dries007.tfc.util.climate.ClimateTFC;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
@@ -42,15 +44,12 @@ public class TEPlanterN extends TEPlanter {
                 if ((boolean)canGrow.invoke(this,slot)) {
                     Item cropItem = this.inventory.getStackInSlot(slot).getItem();
                     if (cropItem instanceof ItemSeedsTFC) {
-                        CropNutrients cropNutrients = null;
-                        for (ICrop c : CropNutrients.MAP.keySet()){
-                            if (ItemSeedsTFC.get(c) == cropItem) {
-                                cropNutrients = CropNutrients.MAP.get(c);
-                                break;
-                            }
-                        }
+                        CropNutrients cropNutrients = CropNutrients.getCropNValues(Utils.readDeclaredField(ItemSeedsTFC.class,cropItem,"crop"));
                         if (cropNutrients != null) {
-                            if (nutrientValues.getNutrient(cropNutrients.favouriteNutrient) >= cropNutrients.stepCost * Config.nutrientConsumptionInGreenhouse) {
+                            if (
+                                    nutrientValues.getNutrient(cropNutrients.favouriteNutrient) >= cropNutrients.stepCost * Config.nutrientConsumptionInGreenhouse &&
+                                    isBelowMaxTemp(cropNutrients.maximumTemperature)
+                            ) {
                                 nutrientValues.addNutrient(cropNutrients.favouriteNutrient, (int)(-cropNutrients.stepCost * Config.nutrientConsumptionInGreenhouse));
                                 markDirty();
                             } else {
@@ -65,6 +64,10 @@ public class TEPlanterN extends TEPlanter {
                 throw new RuntimeException(e);
             }
         }
+    }
+
+    public boolean isBelowMaxTemp(float maxTemp) {
+        return !Config.enforceTemperature || maxTemp > ClimateTFC.getActualTemp(world,pos,0);
     }
 
     @Override
