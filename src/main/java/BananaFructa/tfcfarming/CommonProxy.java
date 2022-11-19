@@ -2,11 +2,13 @@ package BananaFructa.tfcfarming;
 
 import BananaFructa.tfcfarming.firmalife.TEHangingPlanterN;
 import BananaFructa.tfcfarming.firmalife.TEPlanterN;
+import BananaFructa.tfcfarming.firmalife.TEStemCropN;
 import com.eerussianguy.firmalife.blocks.BlockBonsai;
 import com.eerussianguy.firmalife.blocks.BlockHangingPlanter;
 import com.eerussianguy.firmalife.blocks.BlockLargePlanter;
 import com.eerussianguy.firmalife.te.TEHangingPlanter;
 import com.eerussianguy.firmalife.te.TEPlanter;
+import com.eerussianguy.firmalife.te.TEStemCrop;
 import net.dries007.tfc.api.types.ICrop;
 import net.dries007.tfc.objects.blocks.stone.BlockFarmlandTFC;
 import net.dries007.tfc.objects.items.ItemSeedsTFC;
@@ -75,13 +77,7 @@ public class CommonProxy {
     @SuppressWarnings("deprecated")
     public void blockPlaced(BlockEvent.PlaceEvent event) {
         if (!event.getWorld().isRemote) {
-            TECropBase te = (TECropBase) Helpers.getTE(event.getWorld(), event.getPos(), TECropBase.class);
-            if (te != null) {
-                TECropBaseN teCropBaseN = new TECropBaseN(te);
-                teCropBaseN.resetCounter();
-                event.getWorld().setTileEntity(event.getPos(), teCropBaseN);
-                return;
-            }
+            setTileEntity(event.getWorld(),event.getPos());
             if (TFCFarming.firmalifeLoaded) {
                 TEPlanter pte = (TEPlanter) Helpers.getTE(event.getWorld(), event.getPos(), TEPlanter.class);
                 if (pte != null) {
@@ -107,7 +103,6 @@ public class CommonProxy {
                                 TEHangingPlanter teHangingPlanter = new TEHangingPlanterN(crop);
                                 teHangingPlanter.resetCounter();
                                 event.getWorld().setTileEntity(event.getPos(),teHangingPlanter);
-                                System.out.println("AAAAAAAAAAAAAAAAAAA");
                             }
                         }
                     }
@@ -126,15 +121,7 @@ public class CommonProxy {
                 for (Tuple<BlockPos, World> t : awaiting) {
                     World world = t.getSecond();
                     BlockPos pos = t.getFirst();
-                    TECropBase te = (TECropBase) Helpers.getTE(world, pos, TECropBase.class);
-                    world.getTileEntity(pos);
-                    // the tile entity might be already TECropBaseN and the player just right clicked on it with something else
-                    // other than a seed item
-                    if (te != null && !(te instanceof TECropBaseN)) {
-                        TECropBaseN teCropBaseN = new TECropBaseN(te);
-                        teCropBaseN.resetCounter();
-                        world.setTileEntity(pos, teCropBaseN);
-                    }
+                    setTileEntity(world,pos);
                 }
                 awaiting.clear();
             }
@@ -154,6 +141,20 @@ public class CommonProxy {
             TFCFarming.INSTANCE.worldStorage.resetCounter();
         }
 
+    }
+
+    private void setTileEntity(World w,BlockPos pos) {
+        TECropBase te = (TECropBase) Helpers.getTE(w, pos, TECropBase.class);
+        if (te == null) return;
+        if (TFCFarming.firmalifeLoaded && te instanceof TEStemCrop && !(te instanceof TEStemCropN)) {
+            TEStemCropN teStemCropN = new TEStemCropN(te);
+            teStemCropN.resetCounter();
+            w.setTileEntity(pos,teStemCropN);
+        } else if (!(te instanceof TECropBaseN)) {
+            TECropBaseN teCropBaseN = new TECropBaseN(te);
+            teCropBaseN.resetCounter();
+            w.setTileEntity(pos, teCropBaseN);
+        }
     }
 
     public boolean canSeeSky(BlockPos pos,World world) {
