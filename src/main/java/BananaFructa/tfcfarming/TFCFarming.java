@@ -30,7 +30,7 @@ public class TFCFarming {
 
     public static final String modId = "tfcfarming";
     public static final String name = "TFC Farming";
-    public static final String version = "1.1.3";
+    public static final String version = "1.1.4";
 
     public static TFCFarming INSTANCE;
 

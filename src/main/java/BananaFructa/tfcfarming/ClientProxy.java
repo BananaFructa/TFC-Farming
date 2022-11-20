@@ -20,6 +20,7 @@ import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.gui.ScaledResolution;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.item.Item;
 import net.minecraft.util.EnumHand;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.RayTraceResult;
@@ -51,8 +52,9 @@ public class ClientProxy extends CommonProxy {
     @SubscribeEvent
     public void onToolTip(ItemTooltipEvent event) {
 
-        if (TFCFarmingContent.isFertilizer(event.getItemStack().getItem())) {
-            String line = "\u00A79Fertilizer value: " + TFCFarmingContent.getFertilizerClass(event.getItemStack().getItem()).name;
+        if (TFCFarmingContent.isFertilizer(event.getItemStack())) {
+            Item i = event.getItemStack().getItem();
+            String line = "\u00A79Fertilizer value: " + TFCFarmingContent.getFertilizerClass(event.getItemStack()).name;
             event.getToolTip().add(line);
         }
 

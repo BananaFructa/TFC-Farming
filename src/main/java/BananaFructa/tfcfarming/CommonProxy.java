@@ -177,9 +177,10 @@ public class CommonProxy {
 
                 // fertilizer logic
                 if (hangingPlanter || planter || canSeeSky(event.getPos(), event.getWorld())) {
-                    if (TFCFarmingContent.isFertilizer(event.getItemStack().getItem())) {
-                        NutrientClass nutrientClass = TFCFarmingContent.getFertilizerClass(event.getItemStack().getItem());
-                        int value = TFCFarmingContent.getFertilizerValue(event.getItemStack().getItem());
+                    if (TFCFarmingContent.isFertilizer(event.getItemStack())) {
+                        int meta = event.getItemStack().getItem().getHasSubtypes() ? event.getItemStack().getMetadata() : 0;
+                        NutrientClass nutrientClass = TFCFarmingContent.getFertilizerClass(event.getItemStack());
+                        int value = TFCFarmingContent.getFertilizerValue(event.getItemStack());
                         if (!planter && TFCFarming.INSTANCE.worldStorage.fertilizerBlock(event.getPos().getX(), event.getPos().getZ(), nutrientClass,value)) {
                             event.getItemStack().setCount(event.getItemStack().getCount() - 1);
                         } else if (planter) {
