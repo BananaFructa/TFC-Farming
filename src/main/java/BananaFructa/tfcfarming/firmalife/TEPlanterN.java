@@ -7,6 +7,7 @@ import net.dries007.tfc.Constants;
 import net.dries007.tfc.api.types.ICrop;
 import net.dries007.tfc.objects.items.ItemSeedsTFC;
 import net.dries007.tfc.util.agriculture.Crop;
+import net.dries007.tfc.util.calendar.CalendarTFC;
 import net.dries007.tfc.util.climate.ClimateTFC;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
@@ -24,6 +25,10 @@ public class TEPlanterN extends TEPlanter {
 
 
     private static final Method canGrow = Utils.getDeclaredMethod(TEPlanter.class,"canGrow",int.class);
+
+    public TEPlanterN() {
+        if (getTicksSinceUpdate() == CalendarTFC.PLAYER_TIME.getTicks()) resetCounter();
+    }
 
     @Override
     public void onCalendarUpdate(long l) {

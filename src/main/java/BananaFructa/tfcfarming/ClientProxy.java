@@ -1,6 +1,5 @@
 package BananaFructa.tfcfarming;
 
-import BananaFructa.tfcfarming.firmalife.TEPlanterN;
 import BananaFructa.tfcfarming.network.CPacketRequestNutrientData;
 import BananaFructa.tfcfarming.network.PacketHandler;
 import BananaFructa.tfcfarming.network.SPacketNutrientDataResponse;

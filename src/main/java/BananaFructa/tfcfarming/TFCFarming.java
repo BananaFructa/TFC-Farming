@@ -30,7 +30,7 @@ public class TFCFarming {
 
     public static final String modId = "tfcfarming";
     public static final String name = "TFC Farming";
-    public static final String version = "1.1.2";
+    public static final String version = "1.1.3";
 
     public static TFCFarming INSTANCE;
 
@@ -58,9 +58,11 @@ public class TFCFarming {
         MinecraftForge.EVENT_BUS.register(proxy);
         PacketHandler.registerPackets();
         GameRegistry.registerTileEntity(TECropBaseN.class,new ResourceLocation(modId,TECropBaseN.class.getSimpleName()));
-        GameRegistry.registerTileEntity(TEPlanterN.class,new ResourceLocation(modId,TEPlanterN.class.getSimpleName()));
-        GameRegistry.registerTileEntity(TEHangingPlanterN.class,new ResourceLocation(modId,TEHangingPlanterN.class.getSimpleName()));
-        GameRegistry.registerTileEntity(TEStemCropN.class,new ResourceLocation(modId,TEStemCropN.class.getSimpleName()));
+        if (firmalifeLoaded) {
+            GameRegistry.registerTileEntity(TEPlanterN.class, new ResourceLocation(modId, TEPlanterN.class.getSimpleName()));
+            GameRegistry.registerTileEntity(TEHangingPlanterN.class, new ResourceLocation(modId, TEHangingPlanterN.class.getSimpleName()));
+            GameRegistry.registerTileEntity(TEStemCropN.class, new ResourceLocation(modId, TEStemCropN.class.getSimpleName()));
+        }
         proxy.init();
     }
 

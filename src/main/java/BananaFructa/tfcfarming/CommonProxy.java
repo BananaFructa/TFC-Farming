@@ -21,6 +21,8 @@ import net.minecraft.block.Block;
 import net.minecraft.block.material.Material;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
+import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.EnumHand;
 import net.minecraft.util.Tuple;
 import net.minecraft.util.math.BlockPos;
@@ -36,6 +38,7 @@ import net.minecraftforge.fml.common.gameevent.PlayerEvent;
 import net.minecraftforge.fml.common.gameevent.TickEvent;
 import tfcflorae.objects.blocks.blocktype.farmland.FarmlandTFCF;
 
+import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Supplier;
@@ -75,15 +78,13 @@ public class CommonProxy {
     /** Sets the tile entity to the blocks */
     @SubscribeEvent(priority = EventPriority.HIGHEST,receiveCanceled = true)
     @SuppressWarnings("deprecated")
-    public void blockPlaced(BlockEvent.PlaceEvent event) {
+    public void blockPlaced(BlockEvent.PlaceEvent event) throws InstantiationException, IllegalAccessException, NoSuchMethodException, InvocationTargetException {
         if (!event.getWorld().isRemote) {
             setTileEntity(event.getWorld(),event.getPos());
             if (TFCFarming.firmalifeLoaded) {
                 TEPlanter pte = (TEPlanter) Helpers.getTE(event.getWorld(), event.getPos(), TEPlanter.class);
                 if (pte != null) {
-                    TEPlanterN tePlanterN = new TEPlanterN();
-                    tePlanterN.resetCounter();
-                    event.getWorld().setTileEntity(event.getPos(), tePlanterN);
+                    event.getWorld().setTileEntity(event.getPos(), TEPlanterN.class.newInstance());
                     return;
                 }
 
@@ -100,7 +101,7 @@ public class CommonProxy {
                         if (hpte != null) {
                             ICrop crop = Utils.readDeclaredField(ItemSeedsTFC.class,seeds,"crop");
                             if (crop != null) {
-                                TEHangingPlanter teHangingPlanter = new TEHangingPlanterN(crop);
+                                TETickCounter teHangingPlanter = TEHangingPlanterN.class.getConstructor(ICrop.class).newInstance(crop);
                                 teHangingPlanter.resetCounter();
                                 event.getWorld().setTileEntity(event.getPos(),teHangingPlanter);
                             }
@@ -115,7 +116,7 @@ public class CommonProxy {
 
     /** sets tile entity to awaited blocks, nutrient map cleanup, passive nutrient growth */
     @SubscribeEvent
-    public void tickEvent(TickEvent.ServerTickEvent event) {
+    public void tickEvent(TickEvent.ServerTickEvent event) throws InvocationTargetException, NoSuchMethodException, InstantiationException, IllegalAccessException {
         if (!awaiting.isEmpty()) {
             synchronized (awaiting) {
                 for (Tuple<BlockPos, World> t : awaiting) {
@@ -143,11 +144,11 @@ public class CommonProxy {
 
     }
 
-    private void setTileEntity(World w,BlockPos pos) {
+    private void setTileEntity(World w,BlockPos pos) throws NoSuchMethodException, InvocationTargetException, InstantiationException, IllegalAccessException {
         TECropBase te = (TECropBase) Helpers.getTE(w, pos, TECropBase.class);
         if (te == null) return;
         if (TFCFarming.firmalifeLoaded && te instanceof TEStemCrop && !(te instanceof TEStemCropN)) {
-            TEStemCropN teStemCropN = new TEStemCropN(te);
+            TETickCounter teStemCropN = TEStemCropN.class.getConstructor(TECropBase.class).newInstance(te);
             teStemCropN.resetCounter();
             w.setTileEntity(pos,teStemCropN);
         } else if (!(te instanceof TECropBaseN)) {

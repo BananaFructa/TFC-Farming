@@ -6,6 +6,7 @@ import BananaFructa.tfcfarming.NutrientClass;
 import BananaFructa.tfcfarming.NutrientValues;
 import com.eerussianguy.firmalife.te.TEHangingPlanter;
 import net.dries007.tfc.api.types.ICrop;
+import net.dries007.tfc.util.calendar.CalendarTFC;
 import net.dries007.tfc.util.climate.ClimateTFC;
 import net.minecraft.nbt.NBTTagCompound;
 
