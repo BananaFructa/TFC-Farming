@@ -32,7 +32,6 @@ public class TECropBaseN extends TECropBase {
     }
 
     public static double processFactor(NutrientValues nutrientValues, CropNutrients n) {
-        if (nutrientValues.getNPKSet() == null) return 0.3;
         return (nutrientValues.getNPKSet()[n.favouriteNutrient.ordinal()] >= n.stepCost ? 1 : 0.3);
     }
 
