@@ -97,7 +97,7 @@ public enum CropNutrients {
 
         } else {
             this.stepCost = 0;
-            this.favouriteNutrient = null;
+            this.favouriteNutrient = PHOSPHORUS; //safer default! Avoids NPE issue with TECropBaseN.processFactor
             this.crop = null;
         }
 
