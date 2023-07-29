@@ -56,7 +56,7 @@ public class TFCFarmingContent {
         return fertilizerValues.get(new ItemWithSubType(i.getItem(),i.getHasSubtypes() ? i.getMetadata() : 0));
     }
 
-    @SubscribeEvent(priority = EventPriority.LOW)
+    @SubscribeEvent(priority = EventPriority.LOWEST)
     public static void onItemRegister(RegistryEvent.Register<Item> event) {
         event.getRegistry().register(fertilizerP);
         for (int i = 0;i < Config.fertilizerNames.length;i++) {

@@ -32,6 +32,8 @@ public class TEPlanterN extends TEPlanter {
 
     @Override
     public void onCalendarUpdate(long l) {
+        if (!Config.allowedDimensions.contains(this.world.provider.getDimension())) return;
+
         int tier = Utils.readDeclaredField(TEPlanter.class,this,"tier");
         int waterUses = Utils.readDeclaredField(TEPlanter.class,this,"waterUses");
         double tierModifier = tier >= 2 ? 0.95 : 1.05;

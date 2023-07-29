@@ -27,7 +27,7 @@ public class CPacketRequestNutrientDataHandler implements IMessageHandler<CPacke
         IPlayerData playerData = player.getCapability(CapabilityPlayerData.CAPABILITY,null);
         Skill skill = playerData.getSkill(SkillType.AGRICULTURE);
         // TODO:                                                                                                     V config
-        if (Math.abs(player.posX - message.x) <= 5 && Math.abs(player.posZ - message.z) <= 5 && skill.getTier().isAtLeast(SkillTier.ADEPT)) {
+        if (Math.abs(player.posX - message.x) <= 5 && Math.abs(player.posZ - message.z) <= 5 && (skill.getTier().isAtLeast(SkillTier.ADEPT) || player.capabilities.isCreativeMode)) {
             if (message.y == -1) {
                 NutrientValues values = TFCFarming.INSTANCE.worldStorage.getNutrientValues(message.x, message.z);
                 int[] NPK = values.getNPKSet();

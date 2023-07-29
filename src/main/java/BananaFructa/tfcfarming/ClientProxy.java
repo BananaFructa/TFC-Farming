@@ -54,7 +54,10 @@ public class ClientProxy extends CommonProxy {
 
         if (TFCFarmingContent.isFertilizer(event.getItemStack())) {
             Item i = event.getItemStack().getItem();
-            String line = "\u00A79Fertilizer value: " + TFCFarmingContent.getFertilizerClass(event.getItemStack()).name;
+            int prc = 0;
+            int val = TFCFarmingContent.getFertilizerValue(event.getItemStack());
+            prc = ((int)(val/255.0f * 100));
+            String line = "\u00A79Fertilizer value: " + TFCFarmingContent.getFertilizerClass(event.getItemStack()).name + "  \u00A7b" + prc + "%\u00A7r";
             event.getToolTip().add(line);
         }
 

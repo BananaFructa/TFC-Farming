@@ -23,6 +23,8 @@ public class Config {
     public static Integer[] fertilizerValues;
     public static boolean enforceTemperature;
 
+    public static List<Integer> allowedDimensions;
+
     public static void load(File configDirectory) {
         config = new Configuration(new File(configDirectory,"tfcfarming.cfg"));
 
@@ -33,8 +35,17 @@ public class Config {
         hangingPlanters = config.getBoolean("hanging_planter","general",false,"True if the hanging planters should also have nutrient values");
         nutrientConsumptionInGreenhouse = config.getFloat("nutrient_in_greenhouse","general",1,0,10,"The rate at which crops consume nutrients while in Firmalife's greenhouse");
         nutrientConsumptionHangingPlanter = config.getFloat("nutrient_int_hanging","general",1,0,10,"The rate at which hanging planters consume nutrients");
-        enforceTemperature = config.getBoolean("enforce_temperature","general",false,"Plants in the greenhouse cannot grow in too of a hot climate");
+        enforceTemperature = config.getBoolean("enforce_temperature","general",false,"Plants in the greenhouse cannot grow in too hot of a climate");
         String[] fertilizerData = config.getStringList("fertilizers","general",new String[]{"tfc:powder/saltpeter~N~128","tfcfarming:fertilizer_p~P~128","tfc:powder/fertilizer~K~128"},"Fertilizer list: <item name>~<N/P/K>~<fertilizer value between 0~255>");
+        String[] dimensionData = config.getStringList("allowed_dimensions","general",new String[]{"0"},"In what dimensions are crops allowed to grow.");
+        allowedDimensions = new ArrayList<Integer>();
+        for (String s : dimensionData) {
+            try {
+                allowedDimensions.add(Integer.parseInt(s));
+            } catch (Exception err) {
+                err.printStackTrace();
+            }
+        }
         List<String> names = new ArrayList<>();
         List<NutrientClass> classes = new ArrayList<>();
         List<Integer> values = new ArrayList<>();

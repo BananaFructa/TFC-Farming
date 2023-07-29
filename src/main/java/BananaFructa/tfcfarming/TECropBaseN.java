@@ -1,5 +1,7 @@
 package BananaFructa.tfcfarming;
 
+import com.google.common.reflect.TypeToken;
+import com.google.gson.Gson;
 import net.dries007.tfc.api.types.ICrop;
 import net.dries007.tfc.objects.blocks.agriculture.BlockCropTFC;
 import net.dries007.tfc.objects.te.TECropBase;
@@ -31,14 +33,14 @@ public class TECropBaseN extends TECropBase {
         lastTickCalChecked = lastBase.getLastUpdateTick();
     }
 
-    public static double processFactor(NutrientValues nutrientValues, CropNutrients n) {
+    public static double processFactor(NutrientValues nutrientValues, CropNutrients n) { // 2
         return (nutrientValues.getNPKSet()[n.favouriteNutrient.ordinal()] >= n.stepCost ? 1 : 0.3);
     }
 
     void load() {
         if (crop == null) {
-            if (blockType instanceof BlockCropTFC) {
-                crop = ((BlockCropTFC) blockType).getCrop();
+            if (getBlockType() instanceof BlockCropTFC) {
+                crop = ((BlockCropTFC) getBlockType()).getCrop();
                 nValues = CropNutrients.getCropNValues(crop);
                 growthPhaseInterval = crop.getGrowthTicks();
                 if (factor == -1) resetFactor();
@@ -53,7 +55,7 @@ public class TECropBaseN extends TECropBase {
 
         NutrientValues nutrientValues = TFCFarming.INSTANCE.worldStorage.getNutrientValues(pos.getX(), pos.getZ());
 
-        double newFactor = processFactor(nutrientValues,nValues);
+        double newFactor = processFactor(nutrientValues,nValues); // 1
 
         long dg = (long)(super.getTicksSinceUpdate() * factor);
 
@@ -120,11 +122,10 @@ public class TECropBaseN extends TECropBase {
         factor = compound.getDouble("growthUnitFactor");
         virtualFactor = compound.getDouble("virtualGrowthFactor");
 
-        ByteArrayInputStream arrayInputStream  = new ByteArrayInputStream(compound.getByteArray("factorList"));
+        Gson gson = new Gson();
 
         try {
-            ObjectInputStream in = new ObjectInputStream(arrayInputStream);
-            factorList = (List<Double>) in.readObject();
+            factorList = gson.fromJson(compound.getString("factorList"),new TypeToken<List<Double>>(){}.getType());
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -137,14 +138,10 @@ public class TECropBaseN extends TECropBase {
         compound.setDouble("growthUnitFactor",factor);
         compound.setDouble("virtualGrowthFactor",virtualFactor);
 
-        ByteArrayOutputStream arrayOutputStream = new ByteArrayOutputStream();
+        Gson gson = new Gson();
 
         try {
-
-            ObjectOutputStream out = new ObjectOutputStream(arrayOutputStream);
-
-            out.writeObject(factorList);
-            compound.setByteArray("factorList", arrayOutputStream.toByteArray());
+            compound.setString("factorList", gson.toJson(factorList));
         } catch (Exception e) {
             e.printStackTrace();
         }

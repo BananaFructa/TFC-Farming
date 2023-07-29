@@ -1,5 +1,7 @@
 package BananaFructa.tfcfarming;
 
+import com.google.common.reflect.TypeToken;
+import com.google.gson.Gson;
 import net.dries007.tfc.objects.blocks.agriculture.BlockCropDead;
 import net.dries007.tfc.objects.blocks.agriculture.BlockCropTFC;
 import net.dries007.tfc.objects.blocks.stone.BlockFarmlandTFC;
@@ -186,11 +188,10 @@ public class FarmingWorldStorage extends WorldSavedData {
     @Override
     public void readFromNBT(NBTTagCompound nbt) {
         teTickCounter.readFromNBT(nbt);
-        ByteArrayInputStream arrayInputStream  = new ByteArrayInputStream(nbt.getByteArray("nutrientMap"));
+        Gson gson = new Gson();
 
         try {
-            ObjectInputStream in = new ObjectInputStream(arrayInputStream);
-            nutrientMap = (HashMap<Long, Integer>) in.readObject();
+            nutrientMap = gson.fromJson(nbt.getString("nutrientMap"),new TypeToken<HashMap<Long, Integer>>(){}.getType());
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -199,14 +200,11 @@ public class FarmingWorldStorage extends WorldSavedData {
     @Override
     public NBTTagCompound writeToNBT(NBTTagCompound compound) {
         teTickCounter.writeToNBT(compound);
-        ByteArrayOutputStream arrayOutputStream = new ByteArrayOutputStream();
+
+        Gson gson = new Gson();
 
         try {
-
-            ObjectOutputStream out = new ObjectOutputStream(arrayOutputStream);
-
-            out.writeObject(nutrientMap);
-            compound.setByteArray("nutrientMap", arrayOutputStream.toByteArray());
+            compound.setString("nutrientMap", gson.toJson(nutrientMap));
         } catch (Exception e) {
             e.printStackTrace();
         }

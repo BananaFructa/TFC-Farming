@@ -43,6 +43,7 @@ public class TEHangingPlanterN extends TEHangingPlanter {
 
     @Override
     public boolean isClimateValid(int tierMinimum) {
+        if (!Config.allowedDimensions.contains(this.world.provider.getDimension())) return false;
         return super.isClimateValid(tierMinimum) && nutrientValues.getNutrient(nutrientClass) >= cost && isTempBelowMax();
     }
 

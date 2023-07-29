@@ -35,6 +35,7 @@ public enum CropNutrients {
     INDIGO              (NITROGEN,       (TFCFarming.tfcfloraeLoaded ? CropTFCF.INDIGO : null)),
     MADDER              (NITROGEN,       (TFCFarming.tfcfloraeLoaded ? CropTFCF.MADDER : null)),
     OPIUM_POPPY         (NITROGEN,       (TFCFarming.tfcfloraeLoaded ? CropTFCF.OPIUM_POPPY : null)),
+    RAPE                (NITROGEN,      (TFCFarming.tfcfloraeLoaded ? CropTFCF.RAPE : null)),
 
     // Legumes      N           P           K           S
 
@@ -53,7 +54,6 @@ public enum CropNutrients {
     COCA                (POTASSIUM,      (TFCFarming.tfcfloraeLoaded ? CropTFCF.COCA : null)),
     COTTON              (POTASSIUM,      (TFCFarming.tfcfloraeLoaded ? CropTFCF.COTTON : null)),
     HOP                 (POTASSIUM,      (TFCFarming.tfcfloraeLoaded ? CropTFCF.HOP : null)),
-    RAPE                (POTASSIUM,      (TFCFarming.tfcfloraeLoaded ? CropTFCF.RAPE : null)),
 
 
     GINGER              (PHOSPHORUS,     (TFCFarming.tfcfloraeLoaded ? CropTFCF.GINGER : null)),

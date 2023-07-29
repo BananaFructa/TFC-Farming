@@ -1,9 +1,12 @@
 package BananaFructa.tfcfarming.firmalife;
 
+import BananaFructa.tfcfarming.Config;
 import BananaFructa.tfcfarming.CropNutrients;
 import BananaFructa.tfcfarming.NutrientValues;
 import BananaFructa.tfcfarming.TFCFarming;
 import com.eerussianguy.firmalife.te.TEStemCrop;
+import com.google.common.reflect.TypeToken;
+import com.google.gson.Gson;
 import net.dries007.tfc.api.types.ICrop;
 import net.dries007.tfc.objects.blocks.agriculture.BlockCropTFC;
 import net.dries007.tfc.objects.te.TECropBase;
@@ -54,6 +57,8 @@ public class TEStemCropN extends TEStemCrop {
 
     @Override
     public long getTicksSinceUpdate() {
+
+        if (!Config.allowedDimensions.contains(this.world.provider.getDimension())) return 0;
 
         load();
 
@@ -126,11 +131,10 @@ public class TEStemCropN extends TEStemCrop {
         factor = compound.getDouble("growthUnitFactor");
         virtualFactor = compound.getDouble("virtualGrowthFactor");
 
-        ByteArrayInputStream arrayInputStream  = new ByteArrayInputStream(compound.getByteArray("factorList"));
+        Gson gson = new Gson();
 
         try {
-            ObjectInputStream in = new ObjectInputStream(arrayInputStream);
-            factorList = (List<Double>) in.readObject();
+            factorList = gson.fromJson(compound.getString("factorList"),new TypeToken<List<Double>>(){}.getType());
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -142,15 +146,9 @@ public class TEStemCropN extends TEStemCrop {
     public NBTTagCompound writeToNBT(NBTTagCompound compound) {
         compound.setDouble("growthUnitFactor",factor);
         compound.setDouble("virtualGrowthFactor",virtualFactor);
-
-        ByteArrayOutputStream arrayOutputStream = new ByteArrayOutputStream();
-
+        Gson gson = new Gson();
         try {
-
-            ObjectOutputStream out = new ObjectOutputStream(arrayOutputStream);
-
-            out.writeObject(factorList);
-            compound.setByteArray("factorList", arrayOutputStream.toByteArray());
+            compound.setString("factorList", gson.toJson(factorList));
         } catch (Exception e) {
             e.printStackTrace();
         }
