@@ -34,7 +34,12 @@ public class TECropBaseN extends TECropBase {
     }
 
     public static double processFactor(NutrientValues nutrientValues, CropNutrients n) { // 2
-        return (nutrientValues.getNPKSet()[n.favouriteNutrient.ordinal()] >= n.stepCost ? 1 : 0.3);
+        try {
+            return (nutrientValues.getNPKSet()[n.favouriteNutrient.ordinal()] >= n.stepCost ? 1 : 0.3);
+        } catch (Exception err) {
+            err.printStackTrace();
+            return 1;
+        }
     }
 
     void load() {
@@ -142,6 +147,7 @@ public class TECropBaseN extends TECropBase {
 
         try {
             compound.setString("factorList", gson.toJson(factorList));
+            if (factorList == null) factorList = new ArrayList<>();
         } catch (Exception e) {
             e.printStackTrace();
         }

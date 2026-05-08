@@ -47,6 +47,7 @@ public class FarmingWorldStorage extends WorldSavedData {
 
     public FarmingWorldStorage(String name) {
         super(name);
+        nutrientMap = new HashMap<>();
     }
 
     public FarmingWorldStorage() {
@@ -192,6 +193,7 @@ public class FarmingWorldStorage extends WorldSavedData {
 
         try {
             nutrientMap = gson.fromJson(nbt.getString("nutrientMap"),new TypeToken<HashMap<Long, Integer>>(){}.getType());
+            if (nutrientMap == null) nutrientMap = new HashMap<>();
         } catch (Exception e) {
             e.printStackTrace();
         }
